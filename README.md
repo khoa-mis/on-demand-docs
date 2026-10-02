@@ -95,3 +95,16 @@ plugins/on-demand-docs/skills/on-demand-docs/
 
 Scripts can be run by hand: `node scripts/setup.mjs` checks the environment; see the header comment of each
 script for its arguments.
+
+## Changelog
+
+**0.1.1** (2026-10-02)
+- Works with projects whose component bars are prefixed (e.g. "Component: Search Box [On-Page]").
+- Asset and page choosers: scrolls long, lazily loaded trees; handles choosers that open at the current selection; matches folders by depth; accepts the display name shown in the chooser.
+- `editComponent` opens a component's dialog via the pencil on its editor bar (more reliable than the action bar).
+- Guide dates render as written (2026-10-02).
+
+**0.1.0** (2026-10-02)
+- First version: browser scenarios with annotated screenshots, `captureFields` (dialog fields read from
+  Magnolia, no source code needed), guide renderer (web + PDF), review diff, approval commit, and the
+  `setup.mjs` first-run check.

@@ -39,7 +39,7 @@ annotated screenshot per step. `scripts/run-scenario.mjs` executes it and writes
 | `fill` | `field`, `value` | Type into a text field or text area. |
 | `radio` | `field`, `option` | Choose a radio option by its label. |
 | `checkbox` | `field`, `value` (true/false) | Tick or untick a checkbox. |
-| `openChooser` / `pickInTree` | `field` / `path` (array) | Click **Select new** next to an asset/page field, then walk the tree, e.g. `["tours", "vietnam.jpg"]`. Follow with `button: Choose`. |
+| `openChooser` / `pickInTree` | `field` / `path` (array) | Click **Select new** next to an asset/page field, then walk the tree, e.g. `["tours", "vietnam.jpg"]`. Folders use their node names; the last entry is the name **shown in the chooser**, which for assets is the asset's `name` property and can differ from the file name (read it with the REST nodes API on the `dam` workspace). The tree is scrolled automatically. Follow with `button: Choose`. |
 | `save` | | Click **Save changes** and wait for the page to re-render. |
 | `selectComponent` | `selector`, `nth` | Click a rendered component on the page (CSS selector of its markup) to select it. |
 | `editComponent` | `title`, `nth` | Open a component's edit dialog via the pencil on its green editor bar (`title` = the bar label, e.g. "Tour Highlight Card"). Prefer this over `action: Edit component`. |

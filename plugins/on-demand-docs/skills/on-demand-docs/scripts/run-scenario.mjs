@@ -77,6 +77,18 @@ const ops = {
   fill: (a) => ui.fill(a.field, a.value),
   select: (a) => ui.select(a.field, a.option),
   openSelect: (a) => ui.field(a.field).locator('.v-filterselect-button').click().then(() => ui.idle(600)),
+  // Type into a drop-down to filter long option lists (Magnolia pages them 10 at a time).
+  filterSelect: async (a) => {
+    const input = ui.field(a.field).locator('input.v-filterselect-input').first();
+    await input.click();
+    await input.fill('');
+    await input.pressSequentially(a.text, { delay: 60 });
+    await ui.idle(1200);
+  },
+  listOptions: async () => {
+    const opts = await ui.page.locator('.v-filterselect-suggestpopup td').allInnerTexts();
+    console.log('  options: ' + opts.map((o) => o.trim()).filter(Boolean).join(' | '));
+  },
   pickOption: (a) => ui.page.locator('.v-filterselect-suggestpopup').getByText(a.option, { exact: true }).first().click().then(() => ui.idle(400)),
   radio: (a) => ui.radio(a.field, a.option),
   checkbox: (a) => ui.checkbox(a.field, a.value !== false),

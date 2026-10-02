@@ -102,7 +102,7 @@ export class MagnoliaUI {
 
   // Open a component's edit dialog via the pencil on its green editor bar (more reliable than the action bar).
   async editComponent(title, nth = 0) {
-    const bar = this.frame.locator('.mgnlEditorBar.component', { has: this.frame.locator(`.mgnlEditorBarLabel[title="${title}"]`) }).nth(nth);
+    const bar = this.frame.locator('.mgnlEditorBar.component', { has: this.frame.locator(`.mgnlEditorBarLabel[title*="${title}"]`) }).nth(nth);
     await bar.evaluate((el) => el.scrollIntoView({ block: 'center' }));
     await bar.evaluate((el) => { el.style.display = ''; });
     await bar.locator('.mgnlEditorBarLabel').click();
@@ -229,21 +229,49 @@ export class MagnoliaUI {
   }
 
   // Tree rows show asset names without file extension, so accept either form.
-  treeRow(name, scope = this.dialog()) {
+  treeRow(name, scope = this.dialog(), level = null) {
     const bare = name.replace(/\.[a-z0-9]{2,4}$/i, '');
     const re = new RegExp(`^\\s*(${escapeRe(name)}|${escapeRe(bare)})\\s*$`);
-    return scope.locator('tr', { has: this.page.getByText(re) }).first();
+    // The depth class disambiguates folders with the same name at different depths (level is 1-based).
+    const rows = level ? scope.locator(`tr.v-treegrid-row-depth-${level - 1}`) : scope.locator('tr');
+    return rows.filter({ has: this.page.getByText(re) }).first();
+  }
+
+  // Tree grids render rows lazily: scroll the grid until the row exists (or the end is reached).
+  async findTreeRow(name, chooser = this.dialog(), level = null) {
+    const hasLevels = level && (await chooser.locator('tr[class*="v-treegrid-row-depth-"]').count()) > 0;
+    const row = this.treeRow(name, chooser, hasLevels ? level : null);
+    if (await row.waitFor({ timeout: 4000 }).then(() => true, () => false)) return row;
+    // Rows above and below the viewport are not in the DOM: rewind to the top, then page down.
+    await chooser.evaluate((d) => { const sc = d.querySelector('.v-grid-scroller-vertical, .v-treegrid-scroller-vertical'); if (sc) sc.scrollTop = 0; });
+    await this.page.waitForTimeout(800);
+    for (let i = 0; i < 60; i++) {
+      if (await row.count()) { await row.scrollIntoViewIfNeeded().catch(() => {}); return row; }
+      const atEnd = await chooser.evaluate((d) => {
+        const sc = d.querySelector('.v-grid-scroller-vertical, .v-treegrid-scroller-vertical');
+        if (!sc) return true;
+        const before = sc.scrollTop;
+        sc.scrollTop = before + sc.clientHeight * 0.8;
+        return sc.scrollTop === before;
+      });
+      await this.page.waitForTimeout(500);
+      if (atEnd && !(await row.count())) break;
+    }
+    if (!(await row.waitFor({ timeout: 5000 }).then(() => true, () => false))) {
+      throw new Error(`Tree row "${name}"${level ? ` at depth ${level}` : ''} not found in the chooser`);
+    }
+    return row;
   }
 
   async pickInTree(treePath) {
     const chooser = this.dialog();
     for (let i = 0; i < treePath.length; i++) {
-      const row = this.treeRow(treePath[i], chooser);
-      await row.waitFor({ timeout: 15000 });
+      const row = await this.findTreeRow(treePath[i], chooser, i + 1);
       if (i < treePath.length - 1) {
         const expander = row.locator('.v-treegrid-expander, .v-tree8-expander').first();
         const cls = (await expander.getAttribute('class')) || '';
-        if (!cls.includes('expanded')) await expander.click();
+        const expanded = (await row.getAttribute('aria-expanded')) === 'true' || /\bexpanded\b/.test(cls);
+        if (!expanded) await expander.click();
         await this.idle(1200);
       } else {
         await row.click();

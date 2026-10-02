@@ -6,7 +6,10 @@ import { Marked } from 'marked';
 export function parseDoc(source) {
   const m = source.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
   if (!m) return { meta: {}, body: source };
-  return { meta: yaml.load(m[1]) || {}, body: m[2] };
+  const meta = yaml.load(m[1]) || {};
+  // YAML turns 2026-10-02 into a Date; keep it as the plain date string the author wrote.
+  for (const [k, v] of Object.entries(meta)) if (v instanceof Date) meta[k] = v.toISOString().slice(0, 10);
+  return { meta, body: m[2] };
 }
 
 export const slug = (s) => s.toLowerCase().replace(/<[^>]+>/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');

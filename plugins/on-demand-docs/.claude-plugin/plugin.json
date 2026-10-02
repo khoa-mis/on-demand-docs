@@ -1,7 +1,7 @@
 {
   "name": "on-demand-docs",
   "description": "Turn a ticket about a Magnolia CMS component into a screenshot-illustrated, versioned editor guide with a review page and approval step.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": { "name": "MIS Studio" },
   "repository": "https://github.com/khoa-mis/on-demand-docs",
   "keywords": ["magnolia", "documentation", "playwright", "screenshots"]
