@@ -1,0 +1,14 @@
+{
+  "name": "on-demand-docs-scripts",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "diff": "7.0.0",
+    "dotenv": "18.0.5",
+    "js-yaml": "4.3.2",
+    "marked": "15.0.12",
+    "pixelmatch": "6.0.0",
+    "playwright": "1.58.2",
+    "pngjs": "7.0.0"
+  }
+}

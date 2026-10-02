@@ -1,0 +1,12 @@
+{
+  "name": "mis-studio",
+  "description": "MIS Studio tools for Magnolia CMS teams.",
+  "owner": { "name": "MIS Studio" },
+  "plugins": [
+    {
+      "name": "on-demand-docs",
+      "source": "./plugins/on-demand-docs",
+      "description": "Screenshot-illustrated, versioned editor guides for Magnolia CMS components, generated from a ticket."
+    }
+  ]
+}
